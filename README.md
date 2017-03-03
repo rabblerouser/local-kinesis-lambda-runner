@@ -53,3 +53,12 @@ so the AWS region and credentials are internally hardcoded to arbitrary values. 
 running against a real kinesis stream, it would just be a matter of parameterising the extra config.
 
 For a full example of this script in action, see the docker-compose config for [rabblerouser-core](https://github.com/rabblerouser/rabblerouser-core).
+
+## Publishing this library
+
+Scoped packages (which this is) are private by default on npm, which is a paid feature. To publish publically, use this
+command:
+
+```sh
+npm publish --access=public
+```
