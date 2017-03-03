@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "A script for local development of lambda functions that listen to kinesis streams",
   "main": "index.js",
+  "scripts": {
+    "test": "echo 'Someone should really add some tests to this thing!'; exit 1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rabblerouser/local-kinesis-lambda-runner.git"
