@@ -9,10 +9,10 @@ const kinesis = new AWS.Kinesis({
   secretAccessKey: 'ALSO FAKE',
 });
 
-const callback = (err, result) => err ? console.error('Handler failed:', err) : console.log('Handler suceeded:', result);
+const callback = (err, result) => err ? console.error('Handler failed:', err.message) : console.log('Handler suceeded:', result);
 
 const mapKinesisRecord = record => ({
-  data: record.Data,
+  data: record.Data.toString('base64'),
   sequenceNumber: record.SequenceNumber,
   approximateArrivalTimestamp: record.ApproximateArrivalTimestamp,
   partitionKey: record.PartitionKey,
@@ -22,9 +22,9 @@ const pollKinesis = lambda => firstShardIterator => {
   const fetchAndProcessRecords = (shardIterator) => {
     return kinesis.getRecords({ ShardIterator: shardIterator }).promise().then((records) => {
       records.Records.forEach(kinesisRecord => {
-        console.log('Got record from stream:', kinesisRecord);
-        const event = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
-        lambda(event, null, callback);
+        const singleRecordEvent = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
+        console.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
+        lambda(singleRecordEvent, null, callback);
       });
       setTimeout(() => fetchAndProcessRecords(records.NextShardIterator), 500);
     });
