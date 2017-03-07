@@ -52,7 +52,7 @@ Note that this is only intended for local development with something like [kines
 so the AWS region and credentials are internally hardcoded to arbitrary values. This script could be extended to support
 running against a real kinesis stream, it would just be a matter of parameterising the extra config.
 
-For a full example of this script in action, see the docker-compose config for [rabblerouser-core](https://github.com/rabblerouser/rabblerouser-core).
+For a full example of this script in action, see the docker-compose config for [rabblerouser/core](https://github.com/rabblerouser/core).
 
 ## Publishing this library
 
