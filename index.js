@@ -33,24 +33,27 @@ const pollKinesis = lambda => firstShardIterator => {
 }
 
 const run = lambda => {
-  return kinesis.describeStream({ StreamName }).promise()
-    .then(stream => {
-      console.log(`Found ${StreamName}!`);
-      const ShardId = stream.StreamDescription.Shards[0].ShardId
+  const loop = () => {
+    return kinesis.describeStream({ StreamName }).promise()
+      .then(stream => {
+        console.log(`Found ${StreamName}!`);
+        const ShardId = stream.StreamDescription.Shards[0].ShardId
 
-      const params = { StreamName, ShardId, ShardIteratorType: 'LATEST' };
-      return kinesis.getShardIterator(params).promise();
-    })
-    .then(shardIterator => {
-      console.log('Polling kinesis for events...');
-      return shardIterator.ShardIterator;
-    })
-    .then(pollKinesis(lambda))
-    .catch(err => {
-      console.error(err.message);
-      console.log('Restarting...');
-      setTimeout(run, 2000);
-    });
+        const params = { StreamName, ShardId, ShardIteratorType: 'LATEST' };
+        return kinesis.getShardIterator(params).promise();
+      })
+      .then(shardIterator => {
+        console.log('Polling kinesis for events...');
+        return shardIterator.ShardIterator;
+      })
+      .then(pollKinesis(lambda))
+      .catch(err => {
+        console.error(err.message);
+        console.log('Restarting...');
+        setTimeout(loop, 2000);
+      });
+  };
+  loop();
 };
 
 module.exports = run;
