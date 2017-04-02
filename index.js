@@ -9,7 +9,7 @@ const kinesis = new AWS.Kinesis({
   secretAccessKey: 'ALSO FAKE',
 });
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const wait = ms => () => new Promise(resolve => setTimeout(resolve, ms));
 
 const callback = (err, result) => err ? console.error('Handler failed:', err.message) : console.log('Handler suceeded:', result);
 
