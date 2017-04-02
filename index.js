@@ -9,6 +9,8 @@ const kinesis = new AWS.Kinesis({
   secretAccessKey: 'ALSO FAKE',
 });
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const callback = (err, result) => err ? console.error('Handler failed:', err.message) : console.log('Handler suceeded:', result);
 
 const mapKinesisRecord = record => ({
@@ -18,17 +20,20 @@ const mapKinesisRecord = record => ({
   partitionKey: record.PartitionKey,
 });
 
+const reduceRecord = lambda => (promise, kinesisRecord) => promise.then(() => {
+  const singleRecordEvent = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
+  console.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
+  return lambda(singleRecordEvent, null, callback);
+});
+
 const pollKinesis = lambda => firstShardIterator => {
-  const fetchAndProcessRecords = (shardIterator) => {
-    return kinesis.getRecords({ ShardIterator: shardIterator }).promise().then((records) => {
-      records.Records.forEach(kinesisRecord => {
-        const singleRecordEvent = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
-        console.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
-        lambda(singleRecordEvent, null, callback);
-      });
-      setTimeout(() => fetchAndProcessRecords(records.NextShardIterator), 500);
-    });
-  }
+  const fetchAndProcessRecords = shardIterator => (
+    kinesis.getRecords({ ShardIterator: shardIterator }).promise().then(records => (
+      records.Records.reduce(reduceRecord(lambda), Promise.resolve())
+        .then(wait(500))
+        .then(() => fetchAndProcessRecords(records.NextShardIterator))
+    ))
+  )
   return fetchAndProcessRecords(firstShardIterator);
 }
 
