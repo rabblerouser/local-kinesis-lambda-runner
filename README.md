@@ -45,7 +45,7 @@ without a little configuration:
 
 E.g:
 ```sh
-KINESIS_ENDPOINT'http://kinesis:4567' STREAM_NAME='rabblerouser_stream' npm start
+KINESIS_ENDPOINT="http://kinesis:4567" STREAM_NAME="rabblerouser_stream" npm start
 ```
 
 Note that this is only intended for local development with something like [kinesalite](https://github.com/mhart/kinesalite),
