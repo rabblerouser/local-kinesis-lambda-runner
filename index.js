@@ -27,13 +27,16 @@ const reduceRecord = lambda => (promise, kinesisRecord) => promise.then(() => {
 });
 
 const pollKinesis = lambda => firstShardIterator => {
-  const fetchAndProcessRecords = shardIterator => (
-    kinesis.getRecords({ ShardIterator: shardIterator }).promise().then(records => (
-      records.Records.reduce(reduceRecord(lambda), Promise.resolve())
+  console.log('Polling kinesis for events...');
+  const fetchAndProcessRecords = shardIterator => {
+    console.log(`Retrieving records using shardIterator: ${shardIterator}`);
+    return kinesis.getRecords({ ShardIterator: shardIterator }).promise().then(records => {
+      console.log(`Got ${records.Records.length} records`);
+      return records.Records.reduce(reduceRecord(lambda), Promise.resolve())
         .then(wait(500))
-        .then(() => fetchAndProcessRecords(records.NextShardIterator))
-    ))
-  )
+        .then(() => fetchAndProcessRecords(records.NextShardIterator));
+    });
+  }
   return fetchAndProcessRecords(firstShardIterator);
 }
 
@@ -48,7 +51,6 @@ const run = lambda => {
         return kinesis.getShardIterator(params).promise();
       })
       .then(shardIterator => {
-        console.log('Polling kinesis for events...');
         return shardIterator.ShardIterator;
       })
       .then(pollKinesis(lambda))
