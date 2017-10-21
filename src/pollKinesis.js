@@ -1,7 +1,7 @@
-module.exports = (kinesis, StreamName) => {
+module.exports = (kinesis, StreamName, logger) => {
   const wait = ms => () => new Promise(resolve => setTimeout(resolve, ms));
 
-  const callback = (err, result) => err ? console.error('Handler failed:', err.message) : console.log('Handler suceeded:', result);
+  const callback = (err, result) => err ? logger.error('Handler failed:', err.message) : logger.log('Handler suceeded:', result);
 
   const mapKinesisRecord = record => ({
     data: record.Data.toString('base64'),
@@ -12,7 +12,7 @@ module.exports = (kinesis, StreamName) => {
 
   const reduceRecord = lambda => (promise, kinesisRecord) => promise.then(() => {
     const singleRecordEvent = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
-    console.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
+    logger.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
     return lambda(singleRecordEvent, null, callback);
   });
 
@@ -31,20 +31,20 @@ module.exports = (kinesis, StreamName) => {
     const loop = () => {
       return kinesis.describeStream({ StreamName }).promise()
         .then(stream => {
-          console.log(`Found ${StreamName}!`);
+          logger.log(`Found ${StreamName}!`);
           const ShardId = stream.StreamDescription.Shards[0].ShardId
 
           const params = { StreamName, ShardId, ShardIteratorType: 'LATEST' };
           return kinesis.getShardIterator(params).promise();
         })
         .then(shardIterator => {
-          console.log('Polling kinesis for events...');
+          logger.log('Polling kinesis for events...');
           return shardIterator.ShardIterator;
         })
         .then(pollKinesis(lambda))
         .catch(err => {
-          console.error(err.message);
-          console.log('Restarting...');
+          logger.error(err.message);
+          logger.log('Restarting...');
           setTimeout(loop, 2000);
         });
     };

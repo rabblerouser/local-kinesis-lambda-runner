@@ -11,5 +11,5 @@ const kinesis = new AWS.Kinesis({
 });
 
 module.exports = {
-  pollKinesis(kinesis, streamName),
+  pollKinesis(kinesis, streamName, console),
 };
