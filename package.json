@@ -2,8 +2,9 @@
   "name": "@rabblerouser/local-kinesis-lambda-runner",
   "version": "0.2.5",
   "description": "A script for local development of lambda functions that listen to kinesis streams",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "babel src -d lib",
     "test": "echo 'Someone should really add some tests to this thing!'; exit 1"
   },
   "repository": {
@@ -24,5 +25,9 @@
   "homepage": "https://github.com/rabblerouser/local-kinesis-lambda-runner#readme",
   "dependencies": {
     "aws-sdk": "^2.22.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
   }
 }
