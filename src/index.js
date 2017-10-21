@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk')
+const AWS = require('aws-sdk');
 
 const pollKinesis = require('./pollKinesis');
 
@@ -11,5 +11,5 @@ const kinesis = new AWS.Kinesis({
 });
 
 module.exports = {
-  pollKinesis(kinesis, streamName, console),
+  pollKinesis: pollKinesis(kinesis, streamName, console),
 };
