@@ -10,6 +10,4 @@ const kinesis = new AWS.Kinesis({
   secretAccessKey: 'ALSO FAKE',
 });
 
-module.exports = {
-  pollKinesis: pollKinesis(kinesis, streamName, console),
-};
+module.exports = pollKinesis(kinesis, streamName, console);
