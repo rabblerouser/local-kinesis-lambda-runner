@@ -15,7 +15,7 @@ module.exports = (kinesis, StreamName, logger) => {
   const reduceRecord = lambda => (promise, kinesisRecord) => promise.then(() => {
     const singleRecordEvent = { Records: [{ kinesis: mapKinesisRecord(kinesisRecord) }] };
     logger.log('Invoking lambda with record from stream:', JSON.stringify(singleRecordEvent));
-    return lambda(singleRecordEvent, null, callback);
+    return lambda(singleRecordEvent, {}, callback);
   });
 
   const pollKinesis = lambda => (firstShardIterator) => {
